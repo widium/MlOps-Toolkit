@@ -151,11 +151,9 @@ class HuggingFaceRepositoryCreator:
             
         examples_path = repository_path / "examples"
         requirement_path = repository_path / "requirements.txt"
-        readme_path = repository_path / "README.md"
         
         examples_path.mkdir(parents=True, exist_ok=True)
         requirement_path.touch()
-        readme_path.touch()
         
         if app_filepath == None:
             self.create_simple_app_file(repository_path=repository_path)
@@ -165,7 +163,7 @@ class HuggingFaceRepositoryCreator:
                 repository_path=repository_path
             )
         
-        print(f"[INFO] : Create {requirement_path.stem}, {readme_path.stem}, {examples_path.stem}].")
+        print(f"[INFO] : Create {requirement_path.stem}, {examples_path.stem}].")
         
         self.repository.git_add()
         self.repository.git_commit(commit_message="Initialize Repository App")
