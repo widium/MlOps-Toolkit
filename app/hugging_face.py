@@ -104,8 +104,8 @@ class HuggingFaceRepositoryCreator:
         Args:
             repository_path (Path): repository path 
         """
-        app_filename = "app.py"
-        self.app_filepath = repository_path / app_filename
+
+        self.app_filepath = repository_path / "app.py"
         self.app_filepath.touch()
         
         with self.app_filepath.open("w") as file :
@@ -121,18 +121,17 @@ class HuggingFaceRepositoryCreator:
     
     # ============================================================================== #
     
-    def move_app_file(self, app_filepath : str, repository_path : Path):
+    def duplicate_app_file(self, app_filepath : str, repository_path : Path):
         """
-        Move python app file with gradio code to the repository path
+        Duplicate python app file with gradio code to the repository path
 
         Args:
             app_filepath (str): filepath of python app file
             repository_path (Path): repository path
         """
-        app_filename = Path(app_filepath).stem
-        new_app_filepath = repository_path / f"{app_filename}.py"
+        new_app_filepath = repository_path / f"app.py"
         
-        self.app_filepath = shutil.move(
+        self.app_filepath = shutil.copy2(
             src=app_filepath, 
             dst=new_app_filepath,
         )
@@ -151,19 +150,19 @@ class HuggingFaceRepositoryCreator:
             
         examples_path = repository_path / "examples"
         requirement_path = repository_path / "requirements.txt"
-        
+
         examples_path.mkdir(parents=True, exist_ok=True)
         requirement_path.touch()
         
         if app_filepath == None:
             self.create_simple_app_file(repository_path=repository_path)
         else :
-            self.move_app_file(
+            self.duplicate_app_file(
                 app_filepath=app_filepath,
                 repository_path=repository_path
             )
         
-        print(f"[INFO] : Create {requirement_path.stem}, {examples_path.stem}].")
+        print(f"[INFO] : Create [{requirement_path} and {examples_path} directory].")
         
         self.repository.git_add()
         self.repository.git_commit(commit_message="Initialize Repository App")
@@ -176,6 +175,7 @@ class HuggingFaceRepositoryCreator:
     def create_repository(
         self, 
         repo_name : str,
+        app_filepath : str = None,
         repo_type : str = "space",
         space_sdk : str = "gradio",
         space_hardware : str = "cpu-basic",
@@ -211,7 +211,10 @@ class HuggingFaceRepositoryCreator:
             destination_path=self.destination_path
         )
         
-        self.setup_repository(repository_path=self.destination_path)
+        self.setup_repository(
+            repository_path=self.destination_path,
+            app_filepath=app_filepath
+        )
         
         return (self.repository)
     
