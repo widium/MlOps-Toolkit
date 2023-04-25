@@ -5,14 +5,17 @@
 #    By: Widium <ebennace@student.42lausanne.ch>                               #
 #    Github : https://github.com/widium                                        #
 #                                                                              #
-#    Created: 2023/04/25 07:48:31 by Widium                                    #
-#    Updated: 2023/04/25 07:48:31 by Widium                                    #
+#    Created: 2023/04/25 07:53:57 by Widium                                    #
+#    Updated: 2023/04/25 07:53:57 by Widium                                    #
 #                                                                              #
 # **************************************************************************** #
 
+import shutil
 from pathlib import Path
+from shutil import copy2
 from huggingface_hub import HfApi, Repository, create_repo
 
+# ============================================================================== #
 class HuggingFaceRepositoryCreator:
     """
     Create Hugging Face repository in hub
@@ -22,6 +25,7 @@ class HuggingFaceRepositoryCreator:
     
     Initialize Creator with write token
     """
+# ============================================================================== #
     def __init__(self, api_token: str):
         """
         Initialize HuggingFaceRepositoryCreator with an API token.
@@ -31,6 +35,8 @@ class HuggingFaceRepositoryCreator:
         """
         self.api = HfApi()
         self.api_token = api_token
+    
+    # ============================================================================== #
     
     def create_repository_on_hub(
         self, 
@@ -69,7 +75,9 @@ class HuggingFaceRepositoryCreator:
             exist_ok=True,
         )
         print(f"[INFO] : Repository Successfully Created in Hugging Face Hub [{self.repo_url}].") 
-        
+    
+    # ============================================================================== #
+     
     def clone_repository(self, repo_url : str, api_token : str, destination_path : Path)->None:
         """
         Clone the repository from the given URL to the destination path.
@@ -86,25 +94,21 @@ class HuggingFaceRepositoryCreator:
         )
         
         print(f"[INFO] : Repository Successfully Cloned in [{destination_path}].")
-        
-    def setup_repository(self, path : str):
+    
+    # ============================================================================== #
+    
+    def create_simple_app_file(self, repository_path : Path):
         """
-        Set up the repository with initial files and folder structure.
-        
+        Create simple app.py file with Gradio code for build the app in hugging face space hub
+
         Args:
-            path (str): Path to the repository folder
+            repository_path (Path): repository path 
         """
-        root = Path(path)
-        app_path = root / "app.py"
-        requirement_path = root / "requirements.txt"
-        readme_path = root / "README.md"
-        examples_path = root / "examples"
+        app_filename = "app.py"
+        self.app_filepath = repository_path / app_filename
+        self.app_filepath.touch()
         
-        app_path.touch()
-        requirement_path.touch()
-        examples_path.mkdir(parents=True, exist_ok=True)
-        
-        with app_path.open("w") as file :
+        with self.app_filepath.open("w") as file :
             app_content = "import gradio as gr\n"
             app_content += "\ndef greet(name):\n"
             app_content += "    return 'Hello ' + name + '!!'\n"
@@ -112,15 +116,65 @@ class HuggingFaceRepositoryCreator:
             app_content += "iface.launch()\n"
         
             file.write(app_content)
+            
+        print(f"[INFO] : App file not found -> create simple app file here [{self.app_filepath}]")
+    
+    # ============================================================================== #
+    
+    def move_app_file(self, app_filepath : str, repository_path : Path):
+        """
+        Move python app file with gradio code to the repository path
+
+        Args:
+            app_filepath (str): filepath of python app file
+            repository_path (Path): repository path
+        """
+        app_filename = Path(app_filepath).stem
+        new_app_filepath = repository_path / f"{app_filename}.py"
         
-        print(f"[INFO] : create [{app_path} 'with content', {requirement_path}, {readme_path}, {examples_path}].")
+        self.app_filepath = shutil.move(
+            src=app_filepath, 
+            dst=new_app_filepath,
+        )
+        print(f"[INFO] : App file found -> Move app file here [{self.app_filepath}]")
+
+    # ============================================================================== #
+        
+    def setup_repository(self, repository_path : str, app_filepath : str = None):
+        """
+        Set up the repository with initial files and folder structure.
+        
+        Args:
+            path (str): Path to the repository folder
+        """
+        repository_path = Path(repository_path)
+            
+        examples_path = repository_path / "examples"
+        requirement_path = repository_path / "requirements.txt"
+        readme_path = repository_path / "README.md"
+        
+        examples_path.mkdir(parents=True, exist_ok=True)
+        requirement_path.touch()
+        readme_path.touch()
+        
+        if app_filepath == None:
+            self.create_simple_app_file(repository_path=repository_path)
+        else :
+            self.move_app_file(
+                app_filepath=app_filepath,
+                repository_path=repository_path
+            )
+        
+        print(f"[INFO] : Create {requirement_path.stem}, {readme_path.stem}, {examples_path.stem}].")
         
         self.repository.git_add()
         self.repository.git_commit(commit_message="Initialize Repository App")
         self.repository.git_push()
         
         print(f"[INFO] : First Commit Successfully Initialized.")      
-        
+    
+    # ============================================================================== #
+      
     def create_repository(
         self, 
         repo_name : str,
@@ -159,6 +213,8 @@ class HuggingFaceRepositoryCreator:
             destination_path=self.destination_path
         )
         
-        self.setup_repository(path=self.destination_path)
+        self.setup_repository(repository_path=self.destination_path)
         
         return (self.repository)
+    
+    # ============================================================================== #
