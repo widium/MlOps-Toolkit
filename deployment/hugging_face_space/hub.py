@@ -18,40 +18,44 @@ from huggingface_hub import create_repo
 # ============================================================================== #
 
 def create_repository_on_hub(
-        api_token :  str,
-        namespace : str,
-        repo_name : str,
-        repo_type : str = "space",
-        space_sdk : str = "gradio",
-        space_hardware : str = "cpu-basic",
-        private: bool = False,
-    )->None:
-        """
-        Create a repository on Hugging Face Hub with the given parameters.
+    api_token :  str,
+    namespace : str,
+    repo_name : str,
+    repo_type : str = "space",
+    space_sdk : str = "gradio",
+    space_hardware : str = "cpu-basic",
+    private: bool = False,
+)->str:
+    """
+    Create a repository on Hugging Face Hub with the given parameters.
+
+    Args:
+        api_token (str): API token for Hugging Face Hub.
+        namespace (str): Namespace for the repository.
+        repo_name (str): Repository name.
+        repo_type (str, optional): Repository type. Defaults to "space".
+        space_sdk (str, optional): Space SDK. Defaults to "gradio".
+        space_hardware (str, optional): Space hardware. Defaults to "cpu-basic".
+        private (bool, optional): Set repository private or public. Defaults to False.
         
-        Args:
-            repo_name (str): Repository name
-            repo_type (str, optional): Repository type. Defaults to "space".
-            space_sdk (str, optional): Space SDK. Defaults to "gradio".
-            space_hardware (str, optional): Space hardware. Defaults to "cpu-basic".
-            private (bool, optional): Set repository private or public. Defaults to False.
-            destination (str, optional): Destination folder. Defaults to ".".
-        """
+    Return:
+        str : Url of Hugging face space repository
+    """
         
-        repo_full_name = f"{namespace}/{repo_name}"
-        
-        repo_url = create_repo(
-            repo_id=repo_full_name,
-            token=api_token,
-            repo_type=repo_type,
-            space_sdk=space_sdk,
-            space_hardware=space_hardware,
-            private=private,
-            exist_ok=True,
-        )
-        print(f"[INFO] : Repository Successfully Created in Hugging Face Hub [{repo_url}].") 
-        
-        return (repo_url)
+    repo_full_name = f"{namespace}/{repo_name}"
+    
+    repo_url = create_repo(
+        repo_id=repo_full_name,
+        token=api_token,
+        repo_type=repo_type,
+        space_sdk=space_sdk,
+        space_hardware=space_hardware,
+        private=private,
+        exist_ok=True,
+    )
+    print(f"[INFO] : Repository Successfully Created in Hugging Face Hub [{repo_url}].") 
+    
+    return (repo_url)
     
 # ============================================================================== #
 
@@ -63,11 +67,15 @@ def clone_repository_from_hub(
 )->Repository:
     """
     Clone the repository from the given URL to the destination path.
-    
+
     Args:
-        `repo_url` (str): Repository URL
-        `api_token` (str): Hugging Face API token
-        `destination_path` (Path): Destination path for the cloned repository
+        repo_url (str): Repository URL
+        repo_name (str): Repository name
+        api_token (str): Hugging Face API token
+        destination_path (str): Destination path for the cloned repository
+        
+    Return:
+        Repository : repository object who represent cloned repository
     """
     destination_path = Path(destination_path) / repo_name
         

@@ -60,18 +60,20 @@ class HuggingFaceRepositoryCreator:
         private: bool = False,
     )-> Repository:
         """
-        Create a repository on Hugging Face Hub, clone it locally, and set up the initial structure.
+        Create a Hugging Face Hub repository, clone it, and set up its initial structure.
         
         Args:
-            repo_name (str): Repository name
-            repo_type (str, optional): Repository type. Defaults to "space".
-            space_sdk (str, optional): Space SDK. Defaults to "gradio".
-            space_hardware (str, optional): Space hardware. Defaults to "cpu-basic".
-            private (bool, optional): Set repository private or public. Defaults to False.
-            destination (str, optional): Destination folder. Defaults to ".".
+            `repo_name` (str): Repository name.
+            `app_filepath` (str, optional): Path to the app file.
+            `destination_path` (str, optional): Local destination path for the cloned repository. Defaults to ".".
+            `repo_type` (str, optional): Repository type. Defaults to "space".
+            `space_sdk` (str, optional): Space SDK. Defaults to "gradio".
+            `python_version` (str, optional): Python version for the space. Defaults to "3.8.9".
+            `space_hardware` (str, optional): Space hardware. Defaults to "cpu-basic".
+            `private` (bool, optional): Set repository private or public. Defaults to False.
         
         Returns:
-            Repository: Created repository object
+            `Repository`: Created repository object.
         """
         repo_url = create_repository_on_hub(
             api_token=self.api_token,

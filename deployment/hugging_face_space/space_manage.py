@@ -65,7 +65,9 @@ def setup_space_repository(
     Set up the repository with initial files and folder structure.
     
     Args:
-        path (str): Path to the repository folder
+        repository (Repository): Repository object for the local cloned repository
+        python_version (str): Python version to use for the Space
+        app_filepath (str, optional): Filepath of the Python app file, if None, a simple app file will be created
     """
     repository_path = Path(repository.local_dir)
         
