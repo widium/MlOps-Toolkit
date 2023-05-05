@@ -77,13 +77,15 @@ def clone_repository_from_hub(
     Return:
         Repository : repository object who represent cloned repository
     """
-    destination_path = Path(destination_path) / repo_name
+    destination_path = Path(destination_path)
         
-    if not destination_path.exists():
-        destination_path = Path(".") / repo_name
+    if destination_path.exists():
+        repo_path = destination_path / repo_name
+    else :
+        repo_path = Path(".") / repo_name
             
     repository = Repository(
-        local_dir=destination_path,
+        local_dir=repo_path,
         clone_from=repo_url,
         use_auth_token=api_token
     )
